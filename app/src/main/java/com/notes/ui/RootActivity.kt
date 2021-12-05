@@ -5,7 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.notes.databinding.ActivityRootBinding
 import com.notes.ui._base.FragmentNavigator
+import com.notes.ui.details.NoteDetailsFragment
 import com.notes.ui.list.NoteListFragment
+
+const val TAG_NOTES_LIST = "notes_list"
+const val TAG_NOTE_DETAIL = "note_detail"
 
 class RootActivity : AppCompatActivity(), FragmentNavigator {
 
@@ -39,7 +43,16 @@ class RootActivity : AppCompatActivity(), FragmentNavigator {
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
+        var fragments = supportFragmentManager.fragments
+        if(fragments.size == 1 && fragments[0] is NoteDetailsFragment) {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(
+                    viewBinding!!.container.id,
+                    NoteListFragment()
+                )
+                .commit()
+        } else if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
         } else {
             super.onBackPressed()

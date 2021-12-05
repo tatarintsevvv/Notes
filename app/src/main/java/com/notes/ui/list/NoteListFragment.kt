@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.notes.data.NoteDbo
 import com.notes.databinding.FragmentNoteListBinding
 import com.notes.databinding.ListItemNoteBinding
 import com.notes.di.DependencyManager
@@ -20,7 +21,10 @@ class NoteListFragment : ViewBindingFragment<FragmentNoteListBinding>(
 
     private val viewModel by lazy { DependencyManager.noteListViewModel() }
 
-    private val recyclerViewAdapter = RecyclerViewAdapter()
+    private val recyclerViewAdapter = RecyclerViewAdapter(
+        onDelete = { noteId -> viewModel.deleteNote(noteId) },
+        onEdit = { note -> viewModel.editNote(note) }
+    )
 
     override fun onViewBindingCreated(
         viewBinding: FragmentNoteListBinding,
@@ -49,19 +53,22 @@ class NoteListFragment : ViewBindingFragment<FragmentNoteListBinding>(
         )
         viewModel.navigateToNoteCreation.observe(
             viewLifecycleOwner,
-            {
+            { note ->
                 findImplementationOrThrow<FragmentNavigator>()
                     .navigateTo(
-                        NoteDetailsFragment()
+                        NoteDetailsFragment(note)
                     )
 
             }
         )
     }
 
-    private class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+    private class RecyclerViewAdapter(
+        var onDelete: (Long) -> Unit,
+        var onEdit: (NoteDbo) -> Unit
+    ) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-        private val items = mutableListOf<NoteListItem>()
+        private var items = mutableListOf<NoteListItem>()
 
         override fun onCreateViewHolder(
             parent: ViewGroup,
@@ -78,7 +85,7 @@ class NoteListFragment : ViewBindingFragment<FragmentNoteListBinding>(
             holder: ViewHolder,
             position: Int
         ) {
-            holder.bind(items[position])
+            holder.bind(items[position], onDelete, onEdit)
         }
 
         override fun getItemCount() = items.size
@@ -98,10 +105,24 @@ class NoteListFragment : ViewBindingFragment<FragmentNoteListBinding>(
         ) {
 
             fun bind(
-                note: NoteListItem
+                note: NoteListItem,
+                onDelete: (Long) -> Unit,
+                onEdit: (NoteDbo) -> Unit
             ) {
                 binding.titleLabel.text = note.title
                 binding.contentLabel.text = note.content
+                binding.deleteBlock.setOnClickListener {
+                    onDelete.invoke(note.id)
+                }
+                binding.rightBlock.setOnClickListener {
+                                                                                                                                                                                                                                     onEdit.invoke(NoteDbo(
+                        note.id,
+                        note.title,
+                        note.content,
+                        note.createdAt,
+                        note.modifiedAt
+                    ))
+                }
             }
 
         }
