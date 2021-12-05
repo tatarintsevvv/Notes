@@ -115,7 +115,7 @@ class NoteListFragment : ViewBindingFragment<FragmentNoteListBinding>(
                     onDelete.invoke(note.id)
                 }
                 binding.rightBlock.setOnClickListener {
-                    onEdit.invoke(NoteDbo(
+                                                                                                                                                                                                                                     onEdit.invoke(NoteDbo(
                         note.id,
                         note.title,
                         note.content,
