@@ -1,5 +1,6 @@
 package com.notes.di
 
+import com.notes.ui.details.NoteDetailsViewModel
 import com.notes.ui.list.NoteListViewModel
 import dagger.Component
 
@@ -21,5 +22,7 @@ interface RootComponent {
     }
 
     fun getNoteListViewModel(): NoteListViewModel
+
+    fun getNoteDetaisViewModel(): NoteDetailsViewModel
 
 }
